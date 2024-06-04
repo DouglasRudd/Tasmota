@@ -414,7 +414,7 @@ uint32_t UBXprocessGPS()
   static uint8_t currentMsgType = MT_NONE;
   static size_t payloadSize = sizeof(UBX.Message);
 
-  // DEBUG_SENSOR_LOG(PSTR("UBX: check for serial data"));
+   DEBUG_SENSOR_LOG(PSTR("UBX: check for serial data"));
   uint32_t data_bytes = 0;
   while ( UBXSerial->available() ) {
     data_bytes++;
@@ -463,7 +463,7 @@ uint32_t UBXprocessGPS()
         else if ( UBXcompareMsgHeader(UBX.NAV_VEL_HEADER) ) {
           currentMsgType = MT_NAV_VEL;
           payloadSize = sizeof(UBX_t::NAV_VEL);
-          DEBUG_SENSOR_LOG(PSTR("UBX: got NAV_VEL"));
+          DEBUG_SENSOR_LOG(PSTR("UBX: got NAV_VEL :%u"),UBX.NAV_VEL_HEADER);
         }
 #endif
         else {
@@ -715,7 +715,7 @@ void UBXHandleVEL()
       DEBUG_SENSOR_LOG(PSTR("UBX: spd accuracy: %i"), UBX.Message.navVel.sAcc);
       DEBUG_SENSOR_LOG(PSTR("UBX: hdng accuracy: %i"), UBX.Message.navVel.cAcc);
     }
-  
+
 }
 #endif
 
@@ -898,7 +898,9 @@ void UBXShow(bool json)
   char cAcc[12];
   char sAcc[12];
   #endif
+  DEBUG_SENSOR_LOG(PSTR("UBXShow lat: %u"),UBX.rec_buffer.values.lat);
   dtostrfd((double)UBX.rec_buffer.values.lat/10000000.0f,7,lat);
+  DEBUG_SENSOR_LOG(PSTR("UBXShow lat2: %s"),lat);
   dtostrfd((double)UBX.rec_buffer.values.lon/10000000.0f,7,lon);
   dtostrfd((double)UBX.state.last_alt/1000.0f,3,alt);
   dtostrfd((double)UBX.state.last_vAcc/1000.0f,3,hAcc);
@@ -911,6 +913,7 @@ void UBXShow(bool json)
   #endif
 
   if (json) {
+    DEBUG_SENSOR_LOG(PSTR("**************** IN JSON"));
     ResponseAppend_P(PSTR(",\"GPS\":{"));
     if (UBX.mode.send_UI_only) {
       uint32_t i = UBX.state.log_interval / 10;
@@ -918,7 +921,9 @@ void UBXShow(bool json)
     } else {
       ResponseAppend_P(PSTR("\"lat\":%s,\"lon\":%s,\"alt\":%s,\"hAcc\":%s,\"vAcc\":%s,\"fix\":\"%s\""), lat, lon, alt, hAcc, vAcc, kGPSFix[UBX.state.gpsFix]);
 #ifdef USE_GPS_VELOCITY
-      ResponseAppend_P(PSTR(,\"spd\":%s,\"hdng\":%s,\"cAcc\":%s,\"sAcc\":%s"), spd, hdng, cAcc, sAcc);
+      ResponseAppend_P(PSTR(",\"spd\":%s,\"hdng\":%s,\"cAcc\":%s,\"sAcc\":%s"), spd, hdng, cAcc, sAcc);
+      DEBUG_SENSOR_LOG(PSTR("***\"lat\":%s,\"lon\":%s,\"alt\":%s,\"hAcc\":%s,\"vAcc\":%s,\"fix\":\"%s\""), lat, lon, alt, hAcc, vAcc, kGPSFix[UBX.state.gpsFix]);
+      DEBUG_SENSOR_LOG(PSTR("****,\"spd\":%s,\"hdng\":%s,\"cAcc\":%s,\"sAcc\":%s"), spd, hdng, cAcc, sAcc);
 #endif
       ResponseAppend_P(PSTR("}"));
     }
@@ -926,8 +931,10 @@ void UBXShow(bool json)
     ResponseAppend_P(PSTR(",\"FLOG\":{\"rec\":%u,\"mode\":%u,\"sec\":%u}"), Flog->recording, Flog->mode, Flog->sectors_left);
 #endif //USE_FLOG
     UBX.mode.send_UI_only = false;
+    DEBUG_SENSOR_LOG(PSTR("**** ws constent:lat:%s  lon:%s"),lat,lon);
 #ifdef USE_WEBSERVER
-  } else {
+   } else {
+    DEBUG_SENSOR_LOG(PSTR("ws constent:lat:%s  lon:%s"),lat,lon);
 #ifdef USE_GPS_VELOCITY
       WSContentSend_PD(HTTP_SNS_GPS, lat, lon, alt, hAcc, vAcc, kGPSFix[UBX.state.gpsFix], spd, hdng, cAcc, sAcc);
 #endif
