@@ -890,7 +890,7 @@ void UBXShow(bool json)
   DEBUG_SENSOR_LOG(PSTR("DEBUG: UBXShow"));
   char lat[12];
   char lat1[12];
-  char lon[12];
+  char lon[22];
   char alt[12];
   char hAcc[12];
   char vAcc[12];
