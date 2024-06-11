@@ -536,7 +536,7 @@ void UBXsendRecord(uint8_t *buf)
 	UBX_t::entry_t *entry = (UBX_t::entry_t*)buf;
 	snprintf_P(stime, sizeof(stime), GetDT(entry->time).c_str());
 	char lat[12];
-	char lon[12];
+  char lon[12];
 	dtostrfd((double)entry->lat/10000000.0f,7,lat);
 	dtostrfd((double)entry->lon/10000000.0f,7,lon);
 	snprintf_P(record, sizeof(record),PSTR("<trkpt\n\t lat=\"%s\" lon=\"%s\">\n\t<time>%s</time>\n</trkpt>\n"),lat ,lon, stime);
@@ -887,7 +887,9 @@ void UBXLoop(void)
 
 void UBXShow(bool json)
 {
+  DEBUG_SENSOR_LOG(PSTR("DEBUG: UBXShow"));
   char lat[12];
+  char lat1[12];
   char lon[12];
   char alt[12];
   char hAcc[12];
@@ -899,6 +901,8 @@ void UBXShow(bool json)
   char sAcc[12];
   #endif
   dtostrfd((double)UBX.rec_buffer.values.lat/10000000.0f,7,lat);
+  dtostrfd((double)UBX.rec_buffer.values.lat/10000000.0f,7,lat1);
+  DEBUG_SENSOR_LOG(PSTR("DEBUG: lat1: %u  ***  latcalc: %s"),UBX.rec_buffer.values.lat,lat1);
   dtostrfd((double)UBX.rec_buffer.values.lon/10000000.0f,7,lon);
   dtostrfd((double)UBX.state.last_alt/1000.0f,3,alt);
   dtostrfd((double)UBX.state.last_vAcc/1000.0f,3,hAcc);
@@ -918,7 +922,7 @@ void UBXShow(bool json)
     } else {
       ResponseAppend_P(PSTR("\"lat\":%s,\"lon\":%s,\"alt\":%s,\"hAcc\":%s,\"vAcc\":%s,\"fix\":\"%s\""), lat, lon, alt, hAcc, vAcc, kGPSFix[UBX.state.gpsFix]);
 #ifdef USE_GPS_VELOCITY
-      ResponseAppend_P(PSTR(,\"spd\":%s,\"hdng\":%s,\"cAcc\":%s,\"sAcc\":%s"), spd, hdng, cAcc, sAcc);
+      ResponseAppend_P(PSTR(",\"spd\":%s,\"hdng\":%s,\"cAcc\":%s,\"sAcc\":%s"), spd, hdng, cAcc, sAcc);
 #endif
       ResponseAppend_P(PSTR("}"));
     }
